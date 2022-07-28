@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using BlazorLearn.Data;
+using BlazorLearn.Extensions;
 
 var builder = WebApplication.CreateBuilder(args).Inject();
 
@@ -9,6 +10,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBootstrapBlazor();
+
+builder.Services.AddDb();
 
 var app = builder.Build();
 
