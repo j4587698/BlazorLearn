@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using BlazorLearn.Data;
 using BlazorLearn.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args).Inject();
 
@@ -12,6 +13,9 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBootstrapBlazor();
 
 builder.Services.AddDb();
+
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 var app = builder.Build();
 
@@ -30,6 +34,9 @@ app.UseInjectBase();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
