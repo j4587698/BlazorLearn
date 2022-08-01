@@ -1,7 +1,33 @@
 ﻿@page "/Login"
 @layout LoginLayout
 
-<h3>Login</h3>
+<Ajax></Ajax>
+<div class="wrap">
+    <div class="container">
+        <form method="post" class="form-signin">
+            <h2 class="form-signin-heading">@Title</h2>
+            <div class="login-wrap">
+                <BootstrapInputGroup>
+                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-user" />
+                    <BootstrapInput TValue="string" name="userName" maxlength="16" IsAutoFocus="true" PlaceHolder="用户名" @bind-Value="LoginVo.UserName" />
+                </BootstrapInputGroup>
+                <BootstrapInputGroup class="mt-3">
+                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-lock" />
+                    <BootstrapPassword name="password" PlaceHolder="密码" @bind-Value="LoginVo.Password"/>
+                </BootstrapInputGroup>
+                <div class="d-flex justify-content-between mt-3">
+                    <Checkbox @bind-Value="LoginVo.RememberMe" Color="Color.Primary" ShowAfterLabel="true" DisplayText="记住密码自动登录" />
+                </div>
+                <Button class="btn-login mt-3" ButtonType="ButtonType.Button" Size="Size.Large" IsBlock="true" Color="Color.None" OnClick="DoLogin" Text="登 录">
+                </Button>
+                <div class="d-flex justify-content-between mt-3">
+                    <LinkButton Text="申请账号" OnClick="OnSignUp" />
+                    <LinkButton Text="忘记密码" OnClick="OnForgotPassword" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @code {
     
