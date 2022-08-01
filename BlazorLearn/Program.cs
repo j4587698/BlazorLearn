@@ -8,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args).Inject();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddControllers().AddInject();
+
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBootstrapBlazor();
@@ -29,7 +32,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseInjectBase();
+app.UseInject();
 
 app.UseStaticFiles();
 
@@ -38,6 +41,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapDefaultControllerRoute();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
