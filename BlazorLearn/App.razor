@@ -1,5 +1,10 @@
-﻿<BootstrapBlazorRoot>
-    <Router AppAssembly="@typeof(App).Assembly">
+﻿@using System.Security.Claims
+@using BlazorLearn.Entity
+
+@inject NavigationManager NavigationManager
+
+<BootstrapBlazorRoot>
+    <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="PermissionCheck">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
@@ -18,5 +23,42 @@
 </BootstrapBlazorRoot>
 
 @code {
+
+    private void PermissionCheck(NavigationContext context)
+    {
+        var whiteList = Furion.App.Configuration["WhiteList"];
+        if (whiteList != null && whiteList.Split(',').Contains(context.Path))
+        {
+            return;
+        }
+
+        var user = Furion.App.User;
+        if (user == null)
+        {
+            NavigationManager.NavigateTo("/Login");
+            return;
+        }
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            NavigationManager.NavigateTo("/Login");
+            return;
+        }
+
+        if (!int.TryParse(user.FindFirst(ClaimTypes.Role)?.Value, out var roleId))
+        {
+            NavigationManager.NavigateTo("/Login");
+            return;
+        }
+
+        var permission = PermissionEntity
+            .Where(x => x.Roles!.Any(y => y.Id == roleId) && x.Url == context.Path).First();
+
+        if (permission == null)
+        {
+            NavigationManager.NavigateTo("/Login");
+        }
+
+    }
 
 }
