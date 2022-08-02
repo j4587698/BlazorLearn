@@ -35,14 +35,14 @@ public static class DbExtension
             PermissionEntity homePermission = new PermissionEntity()
             {
                 Name = "首页",
-                Url = "/"
+                Url = ""
             };
             homePermission.Save();
             
             PermissionEntity userPermission = new PermissionEntity()
             {
                 Name = "用户管理",
-                Url = "/User"
+                Url = "User"
             };
             userPermission.Save();
             

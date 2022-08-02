@@ -29,7 +29,7 @@ public class LoginController: IDynamicApiController
         {
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName!));
-            identity.AddClaim(new Claim(ClaimTypes.Role, user.Role!.Name!));
+            identity.AddClaim(new Claim(ClaimTypes.Role, user.Role!.Id.ToString()));
             await Furion.App.HttpContext.SignInAsync(new ClaimsPrincipal(identity), new AuthenticationProperties(){IsPersistent = true, ExpiresUtc = loginVo.RememberMe? DateTimeOffset.Now.AddDays(5): DateTimeOffset.Now.AddMinutes(30)});
 
             return new { code = 20000, message = "登录成功" };
