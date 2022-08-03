@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorLearn.Controller;
 
-[Authorize(Policy = "Admin")]
 public class LoginController: IDynamicApiController
 {
     public async Task<object> Post([FromBody]LoginVo loginVo)
