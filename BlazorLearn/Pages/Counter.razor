@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+@page "/counter/{id}"
+@attribute [Authorize(Policy = "Admin")]
 
 <PageTitle>Counter</PageTitle>
 

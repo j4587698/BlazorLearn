@@ -5,10 +5,12 @@ using Furion.DataEncryption;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorLearn.Controller;
 
+[Authorize(Policy = "Admin")]
 public class LoginController: IDynamicApiController
 {
     public async Task<object> Post([FromBody]LoginVo loginVo)
