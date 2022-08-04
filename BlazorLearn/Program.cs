@@ -1,3 +1,4 @@
+using BlazorLearn;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using BlazorLearn.Data;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args).Inject();
 
+builder.Services.AddAppAuthorization<AdminHandler>();
 // Add services to the container.
 builder.Services.AddRazorPages();
 

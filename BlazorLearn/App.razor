@@ -4,9 +4,9 @@
 @inject NavigationManager NavigationManager
 
 <BootstrapBlazorRoot>
-    <Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="PermissionCheck">
+    <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <AuthorizeRouteView Resource="@routeData" RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
                     <RedirectToLogin></RedirectToLogin>
                 </NotAuthorized>
