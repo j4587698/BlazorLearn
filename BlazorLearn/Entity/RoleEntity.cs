@@ -15,6 +15,6 @@ public class RoleEntity : BaseEntity<RoleEntity, int>
     public virtual ICollection<UserEntity>? Users { get; set; }
 
     [Description("权限")]
-    [Navigate(ManyToMany = typeof(RolePermissionEntity))]
-    public virtual ICollection<PermissionEntity>? Permissions { get; set; }
+    [Navigate(ManyToMany = typeof(RoleMenuEntity))]
+    public virtual ICollection<MenuEntity>? Permissions { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using BlazorLearn.Entity;
-using BlazorLearn.Pages;
+using BlazorLearn.Pages.Account;
 using Furion.DataEncryption;
 using Furion.DynamicApiController;
 using Microsoft.AspNetCore.Authentication;

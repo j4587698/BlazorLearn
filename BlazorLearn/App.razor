@@ -51,7 +51,7 @@
             return;
         }
 
-        var permission = PermissionEntity
+        var permission = MenuEntity
             .Where(x => x.Roles!.Any(y => y.Id == roleId) && x.Url == context.Path).First();
 
         if (permission == null)

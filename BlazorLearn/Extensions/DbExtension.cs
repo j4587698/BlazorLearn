@@ -32,25 +32,69 @@ public static class DbExtension
             user.Save();
             
 
-            PermissionEntity homePermission = new PermissionEntity()
+            MenuEntity homeMenu = new MenuEntity()
             {
                 Name = "首页",
-                Url = ""
+                Url = "/",
+                Icon = "fa fa-home"
             };
-            homePermission.Save();
+            homeMenu.Save();
+
+            var menuMenu = new MenuEntity()
+            {
+                Name = "菜单管理",
+                Url = "/menu",
+                Icon = "fa fa-bars",
+                Sort = 10
+            };
+            menuMenu.Save();
+
+            var roleMenu = new MenuEntity()
+            {
+                Name = "角色管理",
+                Url = "/role",
+                Icon = "fa fa-sitemap",
+                Sort = 20
+            };
+            roleMenu.Save();
             
-            PermissionEntity userPermission = new PermissionEntity()
+            MenuEntity userMenu = new MenuEntity()
             {
                 Name = "用户管理",
-                Url = "User"
+                Url = "/user",
+                Icon = "fa fa-user",
+                Sort = 30
             };
-            userPermission.Save();
+            userMenu.Save();
+
+            var parentTest = new MenuEntity()
+            {
+                Name = "父菜单",
+                Url = "/parent"
+            };
+            parentTest.Save();
+
+            var child1 = new MenuEntity()
+            {
+                Name = "子菜单1",
+                Url = "/child1",
+                ParentId = parentTest.Id
+            };
+            child1.Save();
+
+            var child2 = new MenuEntity()
+            {
+                Name = "子菜单2",
+                Url = "/child2",
+                ParentId = parentTest.Id
+            };
+            child2.Save();
             
             RoleEntity role = new RoleEntity()
             {
                 Name = "管理员",
                 Users = new List<UserEntity>() { user },
-                Permissions = new List<PermissionEntity>(){homePermission, userPermission}
+                Permissions = new List<MenuEntity>(){homeMenu, menuMenu, roleMenu, userMenu, parentTest, child1, child2}
             };
             role.Save().SaveMany(nameof(RoleEntity.Users));
             role.SaveMany(nameof(RoleEntity.Permissions));

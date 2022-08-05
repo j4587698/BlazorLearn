@@ -3,7 +3,7 @@ using BootstrapBlazor.Components;
 using Furion.ClayObject;
 using Microsoft.AspNetCore.Components;
 
-namespace BlazorLearn.Pages;
+namespace BlazorLearn.Pages.Account;
 
 public partial class Login
 {
