@@ -26,7 +26,7 @@ public class AdminHandler : AppAuthorizeHandler
             else
             {
                 var url = routeAttr.ConstructorArguments[0].Value as string;
-                var permission = PermissionEntity
+                var permission = MenuEntity
                     .Where(x => x.Roles!.Any(y => y.Id == roleId) && x.Url == url).First();
                 if (permission != null)
                 {

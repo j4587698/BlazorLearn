@@ -5,7 +5,7 @@ using FreeSql.DataAnnotations;
 namespace BlazorLearn.Entity;
 
 [Description("角色权限多多关系表")]
-public class RolePermissionEntity : BaseEntity<RolePermissionEntity, Guid>
+public class RoleMenuEntity : BaseEntity<RoleMenuEntity, Guid>
 {
     [Description("角色Id")]
     public int RoleId { get; set; }
@@ -19,5 +19,5 @@ public class RolePermissionEntity : BaseEntity<RolePermissionEntity, Guid>
 
     [Description("权限")]
     [Navigate(nameof(PermissionId))]
-    public PermissionEntity? Permission { get; set; }
+    public MenuEntity? Permission { get; set; }
 }
