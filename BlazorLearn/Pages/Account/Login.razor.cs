@@ -57,7 +57,7 @@ public partial class Login
         
         var ajaxOption = new AjaxOption
         {
-            Url = "/api/login",
+            Url = "/api/account/login",
             Data = LoginVo
         };
         var str = await AjaxService.GetMessage(ajaxOption);
