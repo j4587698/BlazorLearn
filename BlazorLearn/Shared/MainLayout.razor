@@ -1,19 +1,79 @@
-﻿@inherits LayoutComponentBase
+﻿@using BlazorLearn.Entity
+@using System.Security.Claims
+@using System.Diagnostics.CodeAnalysis
+@inherits LayoutComponentBase
 
 <PageTitle>BlazorLearn</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+<Layout SideWidth="0" IsPage="true" IsFullSide="true" IsFixedHeader="true" IsFixedFooter="true"
+        ShowFooter="true" ShowCollapseBar="true" OnCollapsed="@OnCollapsed" Menus="@_menuItems">
+    <Header>
+            <span class="ms-3 flex-sm-fill d-none d-sm-block">BlazorLearn</span>
+        <div class="flex-fill d-sm-none">
         </div>
-
-        <article class="content px-4">
+        <Logout ImageUrl="images/argo-c.png" DisplayName="@_user.Name" UserName="@_user.UserName">
+                    <LinkTemplate>
+                        <LogoutLink Url="/api/account/logout"></LogoutLink>
+                    </LinkTemplate>
+                </Logout>
+    </Header>
+    <Side>
+            <div class="layout-banner">
+                <img class="layout-logo" src="images/Argo.png" />
+                <div class="layout-title">
+                    <span>BlazorLearn</span>
+                </div>
+            </div>
+        </Side>
+    <Main>
+        <CascadingValue Value="this" IsFixed="true">
             @Body
-        </article>
-    </main>
-</div>
+        </CascadingValue>
+    </Main>
+    <Footer>
+        <div class="text-center flex-fill">
+            <a href="/" target="_blank">BlazorLearn</a>
+        </div>
+    </Footer>
+</Layout>
+
+@code
+{
+    private bool IsCollapsed { get; set; }
+    
+    private List<MenuItem>? _menuItems;
+
+    [NotNull]
+    private UserEntity? _user;
+    
+    private Task OnCollapsed(bool collapsed)
+    {
+        IsCollapsed = collapsed;
+        return Task.CompletedTask;
+    }
+    
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _user = UserEntity.Where(x => x.UserName == Furion.App.User.FindFirstValue(ClaimTypes.Name)).First();
+        if (_user == null)
+        {
+            return;
+        }
+        _menuItems = CreateMenuItems(MenuEntity.Where(x => x.Roles!.Any(y => y.Id == _user.RoleId)).ToList(), 0);
+    }
+
+    private List<MenuItem> CreateMenuItems(List<MenuEntity> menus, int parentId)
+    {
+        var selectedMenus = new List<MenuItem>();
+        var selectedMenuEntities = menus.Where(x => x.ParentId == parentId).ToList();
+
+        foreach (var menuEntity in selectedMenuEntities)
+        {
+            var menuItem = new MenuItem(menuEntity.Name!, menuEntity.Url, menuEntity.Icon);
+            menuItem.Items = CreateMenuItems(menus, menuEntity.Id);
+            selectedMenus.Add(menuItem);
+        }
+        return selectedMenus;
+    }
+}

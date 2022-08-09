@@ -34,6 +34,10 @@ public class AdminHandler : AppAuthorizeHandler
                 }
             }
         }
+        else
+        {
+            return Task.FromResult(true);
+        }
         
         return Task.FromResult(false);
     }
