@@ -1,0 +1,81 @@
+﻿@page "/user"
+@using BlazorLearn.Entity
+@using Furion.DataEncryption
+
+<Table TItem="UserEntity" IsBordered="true" ShowAddButton="true" ShowToolbar="true"
+       ShowExtendButtons="true" ShowEditButtonCallback="entity => entity.Id != 1" ShowDeleteButtonCallback="entity => entity.Id != 1"
+       OnQueryAsync="OnQueryAsync" OnSaveAsync="OnSaveAsync">
+    <TableColumns>
+        <TableColumn @bind-Field="@context.UserName"></TableColumn>
+        <TableColumn @bind-Field="@context.Name"></TableColumn>
+        <TableColumn @bind-Field="@context.RoleId" Lookup="Roles"></TableColumn>
+    </TableColumns>
+    <RowButtonTemplate>
+        <TableCellButton Color="Color.Success" Icon="fa fa-edit" Text="重置密码" OnClickWithoutRender="() => ShowModal(context)"></TableCellButton>
+    </RowButtonTemplate>
+</Table>
+
+<Modal @ref="PasswordModal">
+    <ModalDialog Title="重置密码">
+        <BodyTemplate>
+            <BootstrapInput @bind-Value="SelectedUser.Password" DisplayText="请输入新密码"></BootstrapInput>
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button OnClick="ResetPassword">重置密码</Button>
+        </FooterTemplate>
+    </ModalDialog>
+</Modal>
+
+@code {
+    
+    private List<SelectedItem>? Roles { get; set; }
+    
+    private Modal? PasswordModal { get; set; }
+    
+    private UserEntity? SelectedUser { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SelectedUser = new UserEntity();
+        Roles = RoleEntity.Select.ToList().Select(x => new SelectedItem(x.Id.ToString(), x.Name!)).ToList();
+    }
+
+    private Task<QueryData<UserEntity>> OnQueryAsync(QueryPageOptions arg)
+    {
+        var users = UserEntity.Select.Count(out var count)
+            .Page(arg.PageIndex, arg.PageItems).ToList();
+        return Task.FromResult(new QueryData<UserEntity>()
+        {
+            Items = users,
+            TotalCount = (int)count
+        });
+    }
+
+    private Task<bool> OnSaveAsync(UserEntity arg1, ItemChangedType arg2)
+    {
+        if (arg2 == ItemChangedType.Add)
+        {
+            arg1.Password = MD5Encryption.Encrypt(arg1.UserName);
+        }
+        arg1.Save();
+        return Task.FromResult<bool>(true);
+    }
+
+    private void ResetPassword()
+    {
+        SelectedUser.Password = MD5Encryption.Encrypt(SelectedUser.Password);
+        SelectedUser?.Save();
+        PasswordModal?.Toggle();
+    }
+
+    private Task ShowModal(UserEntity userEntity)
+    {
+        SelectedUser = userEntity;
+        SelectedUser.Password = "";
+        PasswordModal?.Toggle();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+}
