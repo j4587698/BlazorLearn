@@ -1,0 +1,59 @@
+﻿@page "/menu"
+@using BlazorLearn.Entity
+
+<Table TItem="MenuEntity" IsBordered="true" ShowAddButton="true" ShowToolbar="true"
+       ShowExtendButtons="true" IsTree="true" TreeNodeConverter="TreeNodeConverter"
+       OnTreeExpand="OnTreeExpand" OnQueryAsync="OnQueryAsync" OnSaveAsync="OnSaveAsync">
+    <TableColumns>
+        <TableColumn @bind-Field="@context.Name"></TableColumn>
+        <TableColumn @bind-Field="@context.Icon"></TableColumn>
+        <TableColumn @bind-Field="@context.Url"></TableColumn>
+        <TableColumn @bind-Field="@context.ParentId" Visible="false" Lookup="Menus"></TableColumn>
+    </TableColumns>
+</Table>
+
+@code {
+    
+    private List<SelectedItem> Menus { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Menus = new List<SelectedItem>();
+        Menus.Add(new SelectedItem("", "顶级菜单"));
+        Menus.AddRange(MenuEntity.Select.ToList(x => new SelectedItem(x.Id.ToString(), x.Name!)));
+    }
+
+    private Task<QueryData<MenuEntity>> OnQueryAsync(QueryPageOptions arg)
+    {
+        var items = MenuEntity.Select.ToTreeList();
+        return Task.FromResult(new QueryData<MenuEntity>()
+        {
+            Items = items,
+            TotalCount = items.Count
+        });
+    }
+
+    private Task<bool> OnSaveAsync(MenuEntity arg1, ItemChangedType arg2)
+    {
+        arg1.Save();
+        return Task.FromResult(true);
+    }
+
+    private Task<IEnumerable<TableTreeNode<MenuEntity>>> TreeNodeConverter(IEnumerable<MenuEntity> arg)
+    {
+        return Task.FromResult(arg.Select(x => new TableTreeNode<MenuEntity>(x)
+        {
+            HasChildren = x.Children is {Count: > 0 }
+        }));
+    }
+
+    private Task<IEnumerable<TableTreeNode<MenuEntity>>> OnTreeExpand(MenuEntity arg)
+    {
+        return Task.FromResult(arg.Children!.Select(x => new TableTreeNode<MenuEntity>(x)
+        {
+            HasChildren = x.Children is {Count: > 0 }
+        }));
+    }
+
+}
