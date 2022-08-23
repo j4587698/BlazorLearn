@@ -1,6 +1,5 @@
 ﻿@page "/role"
 @using BlazorLearn.Entity
-@inject IDispatchService<string> DispatchService
 
 <Table TItem="RoleEntity" IsBordered="true" ShowAddButton="true" ShowToolbar="true"
        ShowExtendButtons="true" ShowDeleteButtonCallback="entity =>  entity.Id != 1"
@@ -84,7 +83,6 @@
         RoleEntity.Permissions = menus;
         RoleEntity.SaveMany(nameof(RoleEntity.Permissions));
         RoleModal?.Toggle();
-        DispatchService.Dispatch(new DispatchEntry<string>(){Entry = "role"});
     }
 
     private void SaveRole(IEnumerable<TreeViewItem<MenuEntity>> items, List<MenuEntity> menus)
@@ -98,5 +96,5 @@
             }
         }
     }
-
+    
 }
