@@ -2,6 +2,8 @@
 @using System.Security.Claims
 @using System.Diagnostics.CodeAnalysis
 @inherits LayoutComponentBase
+@implements IDisposable
+@inject IDispatchService<string> DispatchService
 
 <PageTitle>BlazorLearn</PageTitle>
 
@@ -55,12 +57,29 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        RefreshMenu();
+        DispatchService.Subscribe(Notify);
+    }
+
+    private Task Notify(DispatchEntry<string> arg)
+    {
+        if (arg.Entry == "role")
+        {
+            RefreshMenu();
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
+    }
+
+    private void RefreshMenu()
+    {
         _user = UserEntity.Where(x => x.UserName == Furion.App.User.FindFirstValue(ClaimTypes.Name)).First();
         if (_user == null)
         {
             return;
         }
         _menuItems = CreateMenuItems(MenuEntity.Where(x => x.Roles!.Any(y => y.Id == _user.RoleId)).ToList(), 0);
+        
     }
 
     private List<MenuItem> CreateMenuItems(List<MenuEntity> menus, int parentId)
@@ -75,5 +94,10 @@
             selectedMenus.Add(menuItem);
         }
         return selectedMenus;
+    }
+
+    public void Dispose()
+    {
+        DispatchService.UnSubscribe(Notify);
     }
 }
