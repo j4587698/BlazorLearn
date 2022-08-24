@@ -1,32 +1,37 @@
 ﻿@using BlazorLearn.Entity
 @using System.Security.Claims
 @using System.Diagnostics.CodeAnalysis
+@using BlazorLearn.Data
+@using FreeSql
+@using Furion.DataEncryption.Extensions
+@using App = Furion.App
 @inherits LayoutComponentBase
-@implements IDisposable
-@inject IDispatchService<string> DispatchService
+@inject DialogService DialogService
+@inject ToastService ToastService
 
 <PageTitle>BlazorLearn</PageTitle>
 
 <Layout SideWidth="0" IsPage="true" IsFullSide="true" IsFixedHeader="true" IsFixedFooter="true"
         ShowFooter="true" ShowCollapseBar="true" OnCollapsed="@OnCollapsed" Menus="@_menuItems">
     <Header>
-            <span class="ms-3 flex-sm-fill d-none d-sm-block">BlazorLearn</span>
+        <span class="ms-3 flex-sm-fill d-none d-sm-block">BlazorLearn</span>
         <div class="flex-fill d-sm-none">
         </div>
         <Logout ImageUrl="images/argo-c.png" DisplayName="@_user.Name" UserName="@_user.UserName">
-                    <LinkTemplate>
-                        <LogoutLink Url="/api/account/logout"></LogoutLink>
-                    </LinkTemplate>
-                </Logout>
+            <LinkTemplate>
+                <LinkButton Icon="fa fa-gear" Text="修改密码" Color="Color.None" OnClick="ChangePassword"></LinkButton>
+                <LogoutLink Url="/api/account/logout"></LogoutLink>
+            </LinkTemplate>
+        </Logout>
     </Header>
     <Side>
-            <div class="layout-banner">
-                <img class="layout-logo" src="images/Argo.png" />
-                <div class="layout-title">
-                    <span>BlazorLearn</span>
-                </div>
+        <div class="layout-banner">
+            <img class="layout-logo" src="images/Argo.png" />
+            <div class="layout-title">
+                <span>BlazorLearn</span>
             </div>
-        </Side>
+        </div>
+    </Side>
     <Main>
         <CascadingValue Value="this" IsFixed="true">
             @Body
@@ -57,29 +62,12 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        RefreshMenu();
-        DispatchService.Subscribe(Notify);
-    }
-
-    private Task Notify(DispatchEntry<string> arg)
-    {
-        if (arg.Entry == "role")
-        {
-            RefreshMenu();
-            InvokeAsync(StateHasChanged);
-        }
-        return Task.CompletedTask;
-    }
-
-    private void RefreshMenu()
-    {
-        _user = UserEntity.Where(x => x.UserName == Furion.App.User.FindFirstValue(ClaimTypes.Name)).First();
+        _user = UserEntity.Where(x => x.UserName == App.User.FindFirstValue(ClaimTypes.Name)).First();
         if (_user == null)
         {
             return;
         }
         _menuItems = CreateMenuItems(MenuEntity.Where(x => x.Roles!.Any(y => y.Id == _user.RoleId)).ToList(), 0);
-        
     }
 
     private List<MenuItem> CreateMenuItems(List<MenuEntity> menus, int parentId)
@@ -96,8 +84,44 @@
         return selectedMenus;
     }
 
-    public void Dispose()
+    private void ChangePassword()
     {
-        DispatchService.UnSubscribe(Notify);
+        var option = new EditDialogOption<ChangePassword>()
+        {
+            Title = "修改密码",
+            Size = Size.Medium,
+            Model = new ChangePassword(),
+            ItemsPerRow = 1,
+            RowType = RowType.Normal,
+            OnEditAsync = async context =>
+            {
+                if (context.Model is not ChangePassword changePassword)
+                {
+                    await ToastService.Show(new ToastOption()
+                    {
+                        Category = ToastCategory.Error,
+                        Title = "保存出错",
+                        Content = "类型转换错误"
+                    });
+                    return false;
+                }
+                var oldPassword = changePassword.OldPassword.ToMD5Encrypt();
+                if (!await UserEntity.Select.Where(x => x.Id == _user.Id && x.Password == oldPassword).AnyAsync())
+                {
+                    await ToastService.Show(new ToastOption()
+                    {
+                        Category = ToastCategory.Error,
+                        Title = "保存出错",
+                        Content = "原密码不正确，请检查原密码"
+                    });
+                    return false;
+                }
+                var newPassword = changePassword.NewPassword.ToMD5Encrypt();
+                _user.Password = newPassword;
+                await _user.SaveAsync();
+                return true;
+            }
+        };
+        DialogService.ShowEditDialog(option);
     }
 }
