@@ -8,6 +8,8 @@
 @inherits LayoutComponentBase
 @inject DialogService DialogService
 @inject ToastService ToastService
+@implements IDisposable
+@inject IDispatchService<string> DispatchService
 
 <PageTitle>BlazorLearn</PageTitle>
 
@@ -67,6 +69,22 @@
         {
             return;
         }
+        RefreshMenu();
+        DispatchService.Subscribe(Notify);
+    }
+    
+    private Task Notify(DispatchEntry<string> arg)
+    {
+        if (arg.Entry == "role")
+        {
+            RefreshMenu();
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
+    }
+
+    private void RefreshMenu()
+    {
         _menuItems = CreateMenuItems(MenuEntity.Where(x => x.Roles!.Any(y => y.Id == _user.RoleId)).ToList(), 0);
     }
 
@@ -123,5 +141,10 @@
             }
         };
         DialogService.ShowEditDialog(option);
+    }
+    
+    public void Dispose()
+    {
+        DispatchService.UnSubscribe(Notify);
     }
 }
